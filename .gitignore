@@ -9,6 +9,8 @@ env/
 .ipynb_checkpoints/
 
 # ML artifacts
+data/flickr8k/
+data/splits/
 data/raw/
 data/processed/
 *.pt
@@ -23,3 +25,6 @@ mlruns/
 .DS_Store
 .vscode/
 .idea/
+
+# docs / drafts
+*.pdf
