@@ -16,7 +16,7 @@ A from-scratch PyTorch implementation of [CLIP](https://arxiv.org/abs/2103.00020
 | Dataset | Flickr8k (6k train / 1k val / 1.09k test images, ~5 captions each) |
 | Training | 15 epochs, batch size 256, A100 (~32 min) |
 
-Both encoders project their 768-dim outputs into a shared 512-dim unit hypersphere. The InfoNCE loss maximizes cosine similarity between matched (image, caption) pairs while pushing all N−1 in-batch negatives apart — symmetrically across both retrieval directions.
+Both encoders project their 768-dim outputs into a shared 512-dim unit hypersphere. The InfoNCE loss maximizes cosine similarity between matched (image, caption) pairs while pushing in-batch examples belonging to other images apart — symmetrically across both retrieval directions.
 
 **Why freeze early ViT blocks?** Early transformer blocks encode low-level features (edges, textures) that transfer cleanly from ImageNet pretraining. Gradient updates are concentrated in the top 4 blocks where task-specific semantic abstractions live.
 
@@ -97,3 +97,10 @@ Open `train_colab.ipynb` and run all cells.
 - Radford et al. (2021) — [Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020)
 - Dosovitskiy et al. (2020) — [An Image is Worth 16x16 Words](https://arxiv.org/abs/2010.11929)
 - Sanh et al. (2019) — [DistilBERT](https://arxiv.org/abs/1910.01108)
+
+
+## Training correctness updates
+
+The training and validation losses now treat all captions with the same image ID as positives. Only the two new embedding heads use the head learning rate; pretrained attention projections use the backbone rate. The results above are historical results from before these corrections and have not been re-measured.
+
+Run CPU regression tests without downloading encoder weights: `python -m pytest -q tests` (requires PyTorch and pytest).
