@@ -104,3 +104,8 @@ Open `train_colab.ipynb` and run all cells.
 The training and validation losses now treat all captions with the same image ID as positives. Only the two new embedding heads use the head learning rate; pretrained attention projections use the backbone rate. The results above are historical results from before these corrections and have not been re-measured.
 
 Run CPU regression tests without downloading encoder weights: `python -m pytest -q tests` (requires PyTorch and pytest).
+
+
+## Interactive workbench (2026-11-13)
+
+Run `python serve_demo.py`, then open <http://127.0.0.1:8000>. See [QUICKSTART.md](QUICKSTART.md) for core commands, tests, provenance and remaining requirements.

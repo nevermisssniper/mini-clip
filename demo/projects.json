@@ -1,0 +1,20 @@
+[
+  {
+    "id": "mini-clip",
+    "name": "Mini-CLIP",
+    "category": "Machine learning",
+    "headline": "One space. Two modalities.",
+    "description": "Inspect cosine retrieval, compare candidates and understand the embedding interface.",
+    "mode": "retrieval",
+    "maturity": "Existing model",
+    "disclosure": "Illustrative embeddings; no trained model is running in this browser.",
+    "features": [
+      "Cosine search",
+      "Embedding explorer",
+      "Reusable Python index"
+    ],
+    "remaining": "Real retrieval quality requires a trained checkpoint and exported encoder embeddings.",
+    "number": "02",
+    "repo": "https://github.com/nevermisssniper/mini-clip"
+  }
+]
