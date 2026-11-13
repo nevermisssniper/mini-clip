@@ -11,6 +11,7 @@ from src.config import Config
 from src.data import build_dataloaders
 from src.loss import InfoNCELoss
 from src.model import MiniCLIP
+from src.optim import parameter_groups
 
 
 def val_epoch(model, loader, loss_fn, device):
@@ -22,7 +23,7 @@ def val_epoch(model, loader, loss_fn, device):
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             img_emb, txt_emb = model(images, input_ids, attention_mask)
-            total += loss_fn(img_emb, txt_emb).item()
+            total += loss_fn(img_emb, txt_emb, batch['image_id'].to(device)).item()
     return total / len(loader)
 
 
@@ -42,14 +43,10 @@ def train(cfg: Config):
     model = MiniCLIP(embed_dim=cfg.embed_dim, freeze_blocks=cfg.freeze_blocks).to(device)
     loss_fn = InfoNCELoss(temperature=cfg.temperature)
 
-    # separate LRs: projection heads (newly init'd) vs. pretrained backbones
-    head_params = [p for n, p in model.named_parameters() if p.requires_grad and 'proj' in n]
-    backbone_params = [p for n, p in model.named_parameters() if p.requires_grad and 'proj' not in n]
-
-    optimizer = AdamW([
-        {'params': backbone_params, 'lr': cfg.lr_backbone},
-        {'params': head_params,     'lr': cfg.lr_head},
-    ], weight_decay=cfg.weight_decay)
+    optimizer = AdamW(
+        parameter_groups(model, cfg.lr_backbone, cfg.lr_head),
+        weight_decay=cfg.weight_decay,
+    )
 
     total_steps = cfg.epochs * len(train_loader)
     warmup_steps = cfg.warmup_epochs * len(train_loader)
@@ -77,7 +74,7 @@ def train(cfg: Config):
 
             optimizer.zero_grad()
             img_emb, txt_emb = model(images, input_ids, attention_mask)
-            loss = loss_fn(img_emb, txt_emb)
+            loss = loss_fn(img_emb, txt_emb, batch['image_id'].to(device))
             loss.backward()
             optimizer.step()
             scheduler.step()
@@ -100,3 +97,4 @@ def train(cfg: Config):
 
 if __name__ == "__main__":
     train(Config())
+

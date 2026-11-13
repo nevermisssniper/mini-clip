@@ -29,6 +29,7 @@ class Flickr8kDataset(Dataset):
         df = pd.read_csv(captions_csv)
         split_images = set(Path(split_file).read_text().splitlines())
         self.df = df[df['image'].isin(split_images)].reset_index(drop=True)
+        self.image_ids = pd.factorize(self.df['image'])[0]
 
         self.images_dir = Path(images_dir)
         self.max_length = max_length
@@ -76,6 +77,7 @@ class Flickr8kDataset(Dataset):
 
         return {
             'image': image,
+            'image_id': int(self.image_ids[idx]),
             'input_ids': encoding['input_ids'].squeeze(0),
             'attention_mask': encoding['attention_mask'].squeeze(0),
         }
@@ -146,3 +148,4 @@ def build_dataloaders(
     )
 
     return train_loader, val_loader, test_loader
+
